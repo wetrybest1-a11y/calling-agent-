@@ -1,0 +1,6 @@
+{
+  "name": "CallPilot AI",
+  "description": "Usage-based AI Calling Agent CRM SaaS with automated follow-ups, contact management, live calling, and metered billing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,6 @@
+{
+  "summary":  "Comprehensive architecture and implementation plan for CallPilot AI — a full-featured, usage-based AI Calling Agent CRM SaaS on Android. Features include multi-tenant organization workspaces, interactive voice calling engine (Twilio/Exotel with interactive audio sandbox fallback), visual agent flow builder, CRM contacts and automated follow-up scheduler, live calling console with realtime transcript and Gemini reasoning, metered usage billing ledger supporting INR/USD and Razorpay/Stripe, and a complete super-admin control panel.",
+  "updatedAt":  "2026-10-23T07:48:06.462445908Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

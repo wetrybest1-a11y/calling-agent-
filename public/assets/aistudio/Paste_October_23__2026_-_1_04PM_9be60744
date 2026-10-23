@@ -1,0 +1,1325 @@
+# MASTER DEVELOPMENT PROMPT — FULL-FLEDGED AI CALLING CRM SAAS
+
+## YOUR ROLE
+
+Act as a principal software architect, senior full-stack engineer, AI voice engineer, database architect, cybersecurity engineer, SaaS product designer, and DevOps engineer.
+
+Your task is to build a complete, deployable, multi-tenant SaaS application called **CallPilot AI** (working name), an AI Calling Agent CRM with automated follow-ups, contact management, real-time voice conversations, usage-based billing, and a complete administration system.
+
+This is a real software product, not a landing page, UI prototype, static dashboard, or chatbot demonstration.
+
+Generate the application code, database schemas, server-side functions, API integrations, security rules, background workers, testing suite, configuration templates, and deployment instructions.
+
+Use Google AI Studio as the development environment. Build the project in the available supported workspace and ensure the resulting application can be exported, configured, tested, and deployed.
+
+If a requested feature depends on an external provider, create the real integration interface and server implementation, document the required credentials, and clearly identify anything that still requires external setup.
+
+Do not claim that external services are connected unless they have actually been configured and tested.
+
+---
+
+# PART 1 — PRODUCT VISION
+
+Build a CRM where businesses can configure AI calling agents that automatically call their leads, answer questions, qualify prospects, schedule appointments, record outcomes, and follow up according to each business's rules.
+
+The product must support multiple businesses, each with separate contacts, agents, campaigns, employees, call records, and billing.
+
+The defining commercial model is:
+
+**₹0 fixed monthly subscription. Customers pay only for the actual billable usage of the AI calling service.**
+
+Do not require customers to purchase a monthly subscription to use the platform.
+
+The business earns revenue from metered usage, with optional transparent charges for other services only if those charges are explicitly configured and disclosed.
+
+The platform must include:
+- A complete CRM.
+- AI voice agent creation and configuration.
+- Real outbound calling.
+- Inbound calling support where the provider permits it.
+- Automated follow-up scheduling.
+- Campaign management.
+- Call history and analytics.
+- Usage tracking.
+- Prepaid credits.
+- Optional administrator-enabled postpaid billing.
+- Invoices and payment history.
+- Team permissions.
+- A super-admin control panel.
+- Secure integrations and production deployment.
+
+Initial target market: Indian businesses and agencies, with an architecture that can support additional countries and currencies.
+
+Default interface language: English. Allow additional languages and voice configurations to be added.
+
+---
+
+# PART 2 — MANDATORY TECHNICAL ARCHITECTURE
+
+Use a modular, maintainable architecture.
+
+## Frontend
+- React.
+- TypeScript.
+- Vite or another supported frontend build system.
+- Tailwind CSS.
+- Reusable accessible UI components.
+- React Router.
+- A charting library.
+- Form validation using a schema-validation library.
+- Responsive layouts for desktop, tablet, and mobile.
+
+## Backend
+- Node.js and TypeScript.
+- Firebase Cloud Functions or Google Cloud Run.
+- REST APIs with typed request and response schemas.
+- Server-side authorization.
+- Background jobs and scheduled workers.
+- Verified webhook endpoints.
+- Structured logs and error reporting.
+
+## Database and authentication
+- Firebase Authentication.
+- Cloud Firestore for the initial implementation.
+- Firebase Storage for authorized files and recordings, if required.
+- Firebase Security Rules.
+- Google Cloud Secret Manager or equivalent secret storage.
+
+## AI
+- Gemini API for conversation reasoning, structured data extraction, summaries, and classification.
+- A separate real-time voice processing architecture for interactive phone conversations.
+- Speech-to-text and text-to-speech providers compatible with the selected telephony infrastructure.
+- Provider-independent interfaces for AI and voice services.
+
+## Hosting
+- Firebase Hosting or an appropriate frontend host.
+- Cloud Run or Cloud Functions for the backend.
+- Cloud Firestore for persistent data.
+- Cloud Scheduler and a reliable queue system for scheduled work.
+- Cloud Logging and monitoring.
+
+Use the currently supported versions and APIs when implementing the application. Verify provider documentation before selecting specific endpoints, model identifiers, webhook formats, or SDK methods.
+
+Do not use deprecated APIs simply because they appear in old examples.
+
+---
+
+# PART 3 — REQUIRED CONNECTORS AND INTEGRATIONS
+
+Build an Integrations section in the app and implement the following connector architecture.
+
+## Connector A: Google Firebase
+
+Purpose:
+- User registration and login.
+- Password reset.
+- Organization membership.
+- Persistent CRM data.
+- Application configuration.
+- File storage.
+- Role-based access control.
+- Database security.
+
+Required implementation:
+- Firebase Authentication.
+- Cloud Firestore.
+- Firebase Security Rules.
+- Server-side Firebase Admin SDK.
+- Storage rules when Firebase Storage is enabled.
+
+Provide an environment setup guide and the required Firebase project configuration.
+
+Do not place privileged service-account credentials in frontend code.
+
+## Connector B: Google Gemini API
+
+Purpose:
+- AI conversation reasoning.
+- Agent prompt execution.
+- Lead qualification.
+- Structured extraction of customer responses.
+- Post-call summaries.
+- Intent classification.
+- Follow-up recommendations.
+- Knowledge-base question answering.
+
+Required implementation:
+- A configurable model adapter.
+- Secure server-side API calls.
+- Configurable model settings.
+- Token and request usage logging where available.
+- Timeouts and retry handling.
+- Structured JSON outputs validated against schemas.
+- Fallback behavior when the AI service fails.
+
+Use Gemini for reasoning, but do not treat a standard text-generation API as a complete telephone calling engine.
+
+Keep voice streaming, telephony connectivity, and call lifecycle management separate.
+
+## Connector C: Telephony Provider
+
+Primary integration candidate: Exotel for an India-focused launch.
+
+Alternative providers: Twilio, Knowlarity, or another provider verified to support the required country, number type, outbound calling, audio integration, and commercial use case.
+
+Build a common interface:
+
+TelephonyProvider:
+- verifyConfiguration()
+- createOutboundCall()
+- createInboundCallHandler()
+- getCallStatus()
+- endCall()
+- transferCall()
+- processWebhook()
+- getBillableDuration()
+- getProviderCost()
+- listAvailableNumbers(), if supported
+
+The actual implementation must follow each provider's documented capabilities. Do not assume that every provider supports every method.
+
+Support:
+- Outbound calls.
+- Inbound call handling where available.
+- Call status webhooks.
+- Answered, unanswered, busy, rejected, and failed statuses.
+- Call start and end timestamps.
+- Provider call IDs.
+- Call transfers when supported.
+- Call recordings when enabled and lawful.
+- Call duration reconciliation.
+- Retry handling.
+- Provider error logging.
+
+If the chosen provider cannot stream interactive audio directly into the selected AI voice stack, use a supported media-streaming bridge or an appropriate compatible voice orchestration service.
+
+Create a provider setup wizard that explains how to configure API credentials, authorized caller IDs, numbers, webhooks, and required approvals.
+
+Never display a fake "connected" status merely because API credentials have been entered. Validate credentials with a real supported verification request.
+
+## Connector D: Real-Time Voice Engine
+
+Use a real voice architecture compatible with telephone audio.
+
+Evaluate and select an appropriate combination of:
+- Telephony audio transport.
+- Speech-to-text.
+- Text-to-speech.
+- Gemini reasoning.
+- Streaming or turn-based orchestration.
+- Interruption handling.
+- Voice activity and silence detection.
+
+The system must support natural conversation, including:
+- Greeting the customer.
+- Listening to responses.
+- Generating spoken replies.
+- Handling interruptions.
+- Recovering from silence.
+- Handling unclear answers.
+- Ending a call gracefully.
+- Transferring to a human when configured.
+
+Build a voice adapter so the speech and orchestration providers can be changed independently.
+
+If a third-party voice orchestration service is used, implement its API adapter on the backend and document its additional costs.
+
+Do not use browser microphone access as a substitute for real phone calls.
+
+## Connector E: Razorpay Payments
+
+Primary integration candidate: Razorpay for India.
+
+Purpose:
+- Customer credit purchases.
+- Payment confirmation.
+- Transaction history.
+- Receipts.
+- Refund workflows.
+
+Required implementation:
+- Server-side order creation.
+- Frontend checkout.
+- Server-side payment signature verification.
+- Verified payment webhooks.
+- Idempotent wallet crediting.
+- Failed and pending payment handling.
+- Refund records.
+- Transaction reconciliation.
+
+Never credit a customer's wallet solely because the frontend reports a successful payment.
+
+The application must support test mode and live mode, with explicit environment separation.
+
+Keep payment secrets server-side.
+
+## Connector F: Email and Notifications
+
+Use a configurable transactional email provider such as Resend, SendGrid, or an equivalent service.
+
+Notifications:
+- Account verification.
+- Password reset.
+- Low credit balance.
+- Successful credit purchase.
+- Payment failure.
+- Campaign started or completed.
+- Call campaign errors.
+- Usage limit reached.
+- Invoice available.
+- Important security events.
+
+Support in-app notifications and optional email notifications.
+
+Do not require an email connector for the CRM to function locally, but make it available for production.
+
+## Connector G: Background Jobs and Scheduling
+
+Use Cloud Tasks, Pub/Sub, Cloud Scheduler, or another appropriate managed job system.
+
+Required jobs:
+- Execute scheduled call attempts.
+- Process call-status events.
+- Retry eligible failed jobs.
+- Reconcile call duration.
+- Finalize billable usage.
+- Generate invoices.
+- Send notifications.
+- Clean up expired temporary data.
+- Detect stuck or abandoned jobs.
+
+Jobs must be durable, retryable, idempotent, observable, and safe to execute more than once.
+
+Do not rely on an open browser window, frontend timer, or client-side JavaScript to run future campaigns.
+
+## Connector H: Optional Business Integrations
+
+Prepare optional adapters for:
+- Google Sheets contact import and export.
+- Google Calendar appointment scheduling.
+- Webhooks for external CRM integrations.
+- A documented REST API.
+- Future WhatsApp integration through an authorized provider.
+
+These integrations must be independently configurable. A failure in an optional connector must not break core CRM operations.
+
+Do not claim an optional connector works until the corresponding API integration is implemented and tested.
+
+---
+
+# PART 4 — USER ROLES
+
+Create three separate access levels.
+
+## Super Admin
+
+The platform owner can:
+- View registered organizations.
+- Approve, suspend, or deactivate accounts.
+- Configure usage rates.
+- Configure provider integrations.
+- Manage supported countries and currencies.
+- Configure taxes and billing rules.
+- Set wallet limits.
+- Review call activity.
+- Monitor provider failures.
+- View usage revenue and infrastructure costs.
+- Review payment transactions and refunds.
+- Configure rate limits.
+- Manage system-wide settings.
+- Access audit logs.
+- Review abuse and compliance alerts.
+
+Financial records must be read from the authoritative ledger, not manually editable dashboard totals.
+
+## Business Owner
+
+The customer can:
+- Create an organization.
+- Invite team members.
+- Import contacts.
+- Create AI agents.
+- Create calling campaigns.
+- Configure follow-up frequency.
+- Manage call schedules.
+- View call records.
+- Review permitted transcripts and recordings.
+- View usage and charges.
+- Purchase credits.
+- Set spending limits.
+- Download invoices and usage reports.
+- Configure business integrations.
+- Manage communication preferences and suppression lists.
+
+## Sales Agent
+
+The team member can:
+- Access assigned contacts.
+- View permitted call history.
+- Update lead status.
+- Add notes.
+- Create follow-up tasks.
+- View authorized campaign progress.
+
+Restrict billing administration, provider secrets, and organization-wide settings to authorized roles.
+
+---
+
+# PART 5 — CRM AND CONTACT MANAGEMENT
+
+Create a full contact database.
+
+Each contact must support:
+- Unique contact ID.
+- Organization ID.
+- Full name.
+- Primary phone number.
+- Country code.
+- Email.
+- Company.
+- Job title.
+- Lead source.
+- Lead owner.
+- Tags.
+- Custom fields.
+- Lead status.
+- Priority.
+- Contact timezone.
+- Communication preferences.
+- Consent status and supporting evidence.
+- Do-not-call flag.
+- Date created.
+- Last contacted timestamp.
+- Next follow-up timestamp.
+- Total calls.
+- Connected calls.
+- Total talk time.
+- Total billable usage.
+- Total cost.
+- Last call result.
+- Notes.
+- Tasks.
+- Contact history.
+
+Create the following screens:
+1. Contacts list.
+2. Contact creation form.
+3. Contact editing form.
+4. Contact detail page.
+5. Contact import wizard.
+6. Duplicate resolution screen.
+7. Contact segmentation.
+8. Saved filters.
+9. Bulk action interface.
+
+Support CSV import and export. Support Excel import if a reliable parser is included.
+
+Import must include:
+- Field mapping.
+- Phone normalization.
+- Duplicate detection.
+- Row-level validation.
+- Invalid-row reporting.
+- Preview before committing.
+- Import summary.
+
+Create a chronological contact timeline containing calls, messages where supported, notes, appointments, status changes, and follow-up tasks.
+
+Use indexed queries and server-side pagination for large datasets.
+
+---
+
+# PART 6 — VISUAL AI AGENT BUILDER
+
+Create a dedicated AI Voice Agents section.
+
+Each voice agent must have:
+- Agent name.
+- Description.
+- Purpose.
+- Supported language.
+- Voice provider.
+- Voice selection.
+- Speaking speed.
+- Tone.
+- Greeting.
+- System instructions.
+- Business context.
+- Knowledge base.
+- Qualification questions.
+- Allowed actions.
+- Escalation conditions.
+- Call transfer settings.
+- Maximum duration.
+- Silence timeout.
+- End-of-call behavior.
+- Allowed calling hours.
+- Maximum attempts.
+- Post-call extraction schema.
+- Default follow-up policy.
+- Spending constraints.
+
+Provide a structured agent creation wizard:
+
+Step 1: Agent identity.
+Step 2: Business information.
+Step 3: Language and voice.
+Step 4: Conversation instructions.
+Step 5: Knowledge base.
+Step 6: Qualification logic.
+Step 7: Safety and escalation.
+Step 8: Call policies.
+Step 9: Test and preview.
+Step 10: Publish.
+
+Provide a visual conversation-flow editor with nodes for:
+- Start.
+- Disclosure and greeting.
+- Customer response.
+- Qualification question.
+- Conditional branch.
+- Knowledge-base response.
+- Appointment scheduling.
+- Human transfer.
+- Follow-up scheduling.
+- End call.
+
+Persist the flow as a versioned, validated data structure.
+
+Allow users to duplicate, edit, test, publish, and archive agents.
+
+An agent currently used by active campaigns must not change unexpectedly when the owner edits its configuration. Use published versions and explicit deployment to campaigns.
+
+---
+
+# PART 7 — AUTOMATIC FOLLOW-UP SCHEDULER
+
+This is a core differentiating feature.
+
+Allow the business owner to define how frequently each lead is called.
+
+Example rules:
+- First call immediately after a lead is created.
+- Retry after one day if unanswered.
+- Retry after three days if the contact is still eligible.
+- Follow up after seven days if the lead is interested.
+- Schedule a callback for a requested date and time.
+- Stop after a specified number of attempts.
+- Stop immediately after conversion, opt-out, or a do-not-call request.
+
+Every scheduled task must contain:
+- Task ID.
+- Organization ID.
+- Contact ID.
+- Campaign ID.
+- Agent ID.
+- Next scheduled time.
+- Timezone.
+- Attempt count.
+- Maximum attempts.
+- Previous outcome.
+- Retry reason.
+- Task status.
+- Consent validation status.
+- Spending authorization status.
+- Idempotency key.
+
+Support:
+- One-time callbacks.
+- Recurring follow-up sequences.
+- Outcome-based scheduling.
+- Campaign-level schedules.
+- Contact-specific overrides.
+- Pause and resume.
+- Manual rescheduling.
+- Cancellation.
+- Retry backoff.
+- Timezone-aware execution.
+
+Before executing each call, recheck consent, suppression status, calling hours, credit availability, spending limits, campaign status, and duplicate-call protection.
+
+If a job fails, record the error and schedule a permitted retry rather than silently losing it.
+
+---
+
+# PART 8 — CAMPAIGN MANAGER
+
+Create a campaign builder with:
+- Campaign name.
+- Objective.
+- Contact segment.
+- Agent selection.
+- Call script version.
+- Start date.
+- End date.
+- Timezone.
+- Allowed calling days.
+- Allowed time windows.
+- Concurrency limit.
+- Retry rules.
+- Maximum attempts.
+- Maximum call duration.
+- Maximum campaign spend.
+- Estimated usage.
+- Credit balance validation.
+- Contact eligibility preview.
+
+Campaign statuses:
+- Draft.
+- Scheduled.
+- Running.
+- Paused.
+- Completed.
+- Cancelled.
+- Failed.
+
+Provide a launch confirmation that displays the number of eligible contacts, configured rate, maximum possible spending exposure, schedule, and calling policy.
+
+Do not promise an exact campaign cost when actual call durations and provider charges are unknown.
+
+Show:
+- Calls attempted.
+- Calls connected.
+- Calls failed.
+- Calls remaining.
+- Total talk time.
+- Billable minutes.
+- Usage cost.
+- Interested leads.
+- Qualified leads.
+- Appointments booked.
+- Follow-ups due.
+
+Stop new calls when a configured spending limit is reached. Define safe behavior for already-connected calls, including any maximum permitted call duration.
+
+---
+
+# PART 9 — LIVE CALLING ENGINE
+
+Implement actual outbound calling using the configured provider.
+
+Call lifecycle:
+1. Validate campaign and contact eligibility.
+2. Reserve or authorize spending capacity.
+3. Create a unique call job.
+4. Submit the call to the provider.
+5. Store the provider call ID.
+6. Process status webhooks.
+7. Establish the supported AI audio connection.
+8. Run the conversation.
+9. Handle interruptions and errors.
+10. Receive final call events.
+11. Retrieve authoritative duration and usage information.
+12. Save permitted transcript and summary.
+13. Finalize the usage charge.
+14. Release unused reserved spending capacity.
+15. Create an eligible follow-up task.
+
+Implement explicit call states:
+Queued, Initiating, Ringing, Connected, In Progress, Completed, Busy, No Answer, Rejected, Failed, Cancelled, and Reconciliation Required.
+
+Make state transitions idempotent.
+
+Never charge twice when the provider sends duplicate webhooks.
+
+Do not treat a call as connected merely because the API accepted the request.
+
+Use verified provider events and actual call records.
+
+If a call ends before the provider's final duration record becomes available, mark the usage record pending reconciliation. Do not invent a final charge.
+
+---
+
+# PART 10 — CALL HISTORY AND AI ANALYSIS
+
+Build a call history page with filters and server-side pagination.
+
+Display:
+- Contact.
+- Campaign.
+- AI agent.
+- Call date.
+- Call status.
+- Actual duration.
+- Billable duration.
+- AI charge.
+- Telephony charge.
+- Total charge.
+- Outcome.
+- Next follow-up.
+
+Each call must have a detail page.
+
+Store:
+- Provider call ID.
+- Call timestamps.
+- Call event timeline.
+- Agent version.
+- Campaign.
+- Contact.
+- Call status.
+- Transcript where permitted.
+- Recording reference where enabled.
+- AI summary.
+- Intent.
+- Qualification result.
+- Objections.
+- Callback request.
+- Appointment details.
+- Structured extracted fields.
+- Billing reconciliation status.
+
+AI analysis must use actual call content and verified events.
+
+If a transcript is missing, display "Transcript unavailable" rather than fabricating one.
+
+Keep recordings private, use signed access URLs where appropriate, and apply configured retention and deletion policies.
+
+---
+
+# PART 11 — USAGE METERING AND BILLING
+
+Build a separate, authoritative usage ledger.
+
+The administrator can configure:
+- AI price per billable minute.
+- AI price per billable second.
+- Country-specific rates.
+- Currency.
+- Minimum billable duration.
+- Billing increment.
+- Rounding policy.
+- Separate telephony charges.
+- Provider-specific cost treatment.
+- Applicable taxes.
+- Promotional credits.
+- Refund and adjustment rules.
+
+Example rate for testing: ₹2 per billable minute.
+
+If per-second billing is selected and the rate is ₹2 per minute, a 30-second call costs ₹1 before separately configured charges and taxes.
+
+These are example values only.
+
+Use integer paise or another exact monetary representation rather than floating-point arithmetic.
+
+Calculate charges on the backend.
+
+Store a snapshot of the applicable pricing rule with each finalized usage entry so future rate changes do not alter past invoices.
+
+For each call, record:
+- Usage record ID.
+- Tenant ID.
+- Call ID.
+- Provider call ID.
+- Actual duration.
+- Billable duration.
+- Pricing rule version.
+- AI charge.
+- Telephony charge.
+- Taxes.
+- Credits applied.
+- Refunds and adjustments.
+- Final amount.
+- Currency.
+- Billing status.
+- Reconciliation status.
+- Creation timestamp.
+
+Implement:
+- Usage reservation.
+- Usage finalization.
+- Usage reversal.
+- Duplicate event prevention.
+- Ledger reconciliation.
+- Customer usage reporting.
+- Administrator financial reporting.
+
+For a prepaid wallet, reserve enough authorized spending capacity before initiating a call when possible. Finalize the verified charge after usage is available and release unused reservations.
+
+For postpaid accounts, enforce configurable credit limits.
+
+A call that never becomes billable must not incur an AI usage charge. If the telephony provider charges for a failed or unanswered attempt, display that provider charge separately according to the disclosed pricing policy.
+
+Do not claim that every external provider charges zero for unanswered calls.
+
+---
+
+# PART 12 — WALLET AND PAYMENTS
+
+Create a wallet screen displaying:
+- Available balance.
+- Reserved balance.
+- Total credits purchased.
+- Total usage consumed.
+- Total refunds.
+- Pending transactions.
+- Low-balance alerts.
+
+Users can:
+- Purchase a custom amount of credits.
+- Select a suggested credit amount.
+- View taxes and charges before payment.
+- Review payment history.
+- Download receipts.
+- Request support for a transaction.
+- Set low-balance notifications.
+- Configure auto-recharge only through explicit opt-in.
+
+Use Razorpay in test mode initially.
+
+Implement server-side payment order creation, signature verification, webhook verification, and transactional wallet crediting.
+
+Use immutable wallet transaction records.
+
+Prevent duplicate credits from:
+- Repeated payment webhooks.
+- Replayed payment events.
+- Repeated frontend requests.
+- Concurrent transactions.
+
+Never permit users to edit their own balances.
+
+Make refunds and manual credits administrator-controlled and fully audited.
+
+Do not describe prepaid wallet deposits as recognized revenue automatically. Track customer liabilities and actual usage revenue separately.
+
+---
+
+# PART 13 — BILLING REPORTS AND INVOICES
+
+Generate itemized billing reports showing:
+- Billing period.
+- Calls attempted.
+- Billable calls.
+- Billable minutes.
+- AI charges.
+- Telephony charges.
+- Other explicitly configured charges.
+- Taxes.
+- Discounts.
+- Credits applied.
+- Refunds.
+- Amount payable.
+- Payment status.
+
+Provide:
+- PDF invoices.
+- CSV usage exports.
+- Invoice numbering.
+- Invoice issue date.
+- Customer billing details.
+- Configurable tax information.
+- Credit notes or adjustment records.
+- Monthly and custom-period reports.
+
+Generate invoices from verified financial records.
+
+Do not silently edit issued invoices. Use adjustment or credit-note records.
+
+---
+
+# PART 14 — ADMIN CONSOLE
+
+Create a separate super-admin application area.
+
+Include:
+- Organization management.
+- User management.
+- Agent and campaign statistics.
+- Provider health.
+- Usage by customer.
+- Usage by country.
+- AI service consumption.
+- Telephony costs.
+- Customer charges.
+- Wallet liabilities.
+- Payment gateway fees.
+- Refunds.
+- Failed payments.
+- Failed calls.
+- Reconciliation exceptions.
+- Gross margin.
+- Infrastructure expenses where measurable.
+- Audit logs.
+- Abuse alerts.
+
+Separate customer charges from the platform's actual costs.
+
+Calculate gross margin using recorded usage revenue and recorded direct costs, while identifying any costs that have not yet been imported.
+
+Do not present an incomplete cost estimate as verified profit.
+
+Provide filters by date, customer, country, provider, and campaign.
+
+---
+
+# PART 15 — DATABASE SCHEMA
+
+Create validated TypeScript models and Firestore collections for:
+
+1. users
+2. organizations
+3. organizationMembers
+4. contacts
+5. contactNotes
+6. contactCustomFields
+7. consentRecords
+8. suppressionLists
+9. voiceAgents
+10. voiceAgentVersions
+11. knowledgeBases
+12. campaigns
+13. campaignContacts
+14. callJobs
+15. callRecords
+16. callEvents
+17. transcripts
+18. recordingsMetadata
+19. followUpTasks
+20. pricingRules
+21. usageLedger
+22. usageReservations
+23. wallets
+24. walletTransactions
+25. paymentOrders
+26. paymentEvents
+27. invoices
+28. invoiceItems
+29. refunds
+30. providerConfigurations
+31. integrationHealth
+32. notifications
+33. auditLogs
+34. webhookEvents
+35. systemSettings
+
+Every organization-owned record must contain an organization ID.
+
+Use server-side authorization for every sensitive read and write.
+
+Use unique event IDs and idempotency keys for call events, usage entries, and payment events.
+
+Design appropriate Firestore indexes for:
+- Contacts by organization and status.
+- Follow-up tasks by organization and scheduled time.
+- Campaigns by organization and status.
+- Call records by organization and date.
+- Usage ledger by organization and billing period.
+- Payment history by organization and timestamp.
+
+Avoid unbounded queries. Use pagination and defined retention policies.
+
+Use transactions for related wallet and financial state changes. For operations that span multiple services, implement a durable state machine or saga with reconciliation and compensating entries.
+
+---
+
+# PART 16 — SECURITY AND COMPLIANCE
+
+Implement:
+- Firebase Authentication.
+- Role-based permissions.
+- Organization-level data isolation.
+- Server-side authorization checks.
+- Input validation.
+- API rate limiting.
+- Secure webhook signatures.
+- Secret Manager integration.
+- Audit trails.
+- Secure file access.
+- Data export and deletion.
+- Retention controls.
+- Logging without sensitive secrets.
+- Abuse prevention.
+- Spending limits.
+- Call concurrency limits.
+- Authentication on administrative endpoints.
+
+Prevent users from changing:
+- Another organization's records.
+- Their own pricing rules.
+- Their wallet balance.
+- Their usage ledger.
+- Their payment verification status.
+- Their admin role.
+- Provider credentials they are not authorized to manage.
+
+For India, include configurable controls for applicable privacy and telecom requirements, including relevant DPDP obligations and TRAI, DLT, and provider-specific rules where applicable.
+
+Implement consent evidence, opt-out processing, permitted calling windows, caller identification, and do-not-call suppression.
+
+Clearly disclose that the caller is an AI assistant where appropriate and comply with applicable recording and notification requirements.
+
+Do not build features for evading spam detection, disguising caller identity, bypassing consent, or circumventing provider restrictions.
+
+Require the appropriate authorization and configuration before enabling live calls.
+
+---
+
+# PART 17 — COMPLETE FRONTEND PAGES
+
+Build all of the following pages with working navigation.
+
+## Public pages
+- Landing page.
+- Features.
+- Pricing.
+- Documentation.
+- Contact support.
+- Sign up.
+- Login.
+- Password recovery.
+- Terms and privacy links.
+
+The pricing page must prominently state that there is no mandatory fixed monthly subscription. Show configurable usage pricing and explain any separate provider charges.
+
+## Customer application
+- Overview dashboard.
+- Contacts.
+- Contact detail.
+- Contact import.
+- Segments.
+- Voice agents.
+- Voice agent editor.
+- Agent test console.
+- Campaigns.
+- Campaign builder.
+- Campaign detail.
+- Scheduled calls.
+- Follow-up tasks.
+- Call history.
+- Call detail.
+- Conversations.
+- Usage.
+- Wallet.
+- Add credits.
+- Transactions.
+- Invoices.
+- Team.
+- Integrations.
+- API credentials.
+- Notifications.
+- Business settings.
+- Security settings.
+- Support.
+
+## Super-admin application
+- Global overview.
+- Organizations.
+- Users.
+- Provider management.
+- Rate configuration.
+- Calls.
+- Campaigns.
+- Usage ledger.
+- Wallet transactions.
+- Payments.
+- Invoices.
+- Refunds.
+- Financial analytics.
+- Reconciliation.
+- Audit logs.
+- System settings.
+
+Implement proper loading, empty, validation, success, and error states.
+
+Use realistic sample data only in an explicitly labeled demo or development environment.
+
+All navigation links, buttons, forms, filters, and actions must work.
+
+---
+
+# PART 18 — DESIGN SYSTEM
+
+Use a professional SaaS design.
+
+Visual direction:
+- White and light-gray backgrounds.
+- Dark navy typography.
+- Indigo or violet accents.
+- Clear tables.
+- Restrained shadows.
+- Consistent spacing.
+- Modern typography.
+- Accessible contrast.
+- Clean icons.
+- Responsive layouts.
+- Simple charts.
+- Clear status indicators.
+
+Use a collapsible sidebar, top navigation, global search, notification menu, organization switcher, and user profile menu.
+
+The dashboard should feel like a production CRM for businesses rather than a generic AI demo.
+
+Prioritize usability and data clarity over unnecessary animations.
+
+---
+
+# PART 19 — API DESIGN
+
+Create versioned, documented backend endpoints.
+
+Example routes:
+
+Authentication and organizations:
+- GET /api/v1/me
+- POST /api/v1/organizations
+- GET /api/v1/organizations
+- POST /api/v1/organizations/:id/members
+
+Contacts:
+- GET /api/v1/contacts
+- POST /api/v1/contacts
+- GET /api/v1/contacts/:id
+- PATCH /api/v1/contacts/:id
+- POST /api/v1/contacts/import
+- GET /api/v1/contacts/export
+
+Agents:
+- GET /api/v1/agents
+- POST /api/v1/agents
+- PATCH /api/v1/agents/:id
+- POST /api/v1/agents/:id/test
+- POST /api/v1/agents/:id/publish
+
+Campaigns:
+- GET /api/v1/campaigns
+- POST /api/v1/campaigns
+- POST /api/v1/campaigns/:id/start
+- POST /api/v1/campaigns/:id/pause
+- POST /api/v1/campaigns/:id/resume
+- POST /api/v1/campaigns/:id/stop
+
+Calls:
+- GET /api/v1/calls
+- GET /api/v1/calls/:id
+- POST /api/v1/calls/:id/end
+
+Scheduling:
+- GET /api/v1/follow-ups
+- POST /api/v1/follow-ups
+- PATCH /api/v1/follow-ups/:id
+- POST /api/v1/follow-ups/:id/cancel
+
+Billing:
+- GET /api/v1/billing/usage
+- GET /api/v1/billing/transactions
+- GET /api/v1/billing/invoices
+- POST /api/v1/billing/checkout
+- GET /api/v1/billing/balance
+
+Integrations:
+- GET /api/v1/integrations
+- POST /api/v1/integrations/:provider/test
+- POST /api/v1/webhooks/:provider
+
+These are proposed API routes. Implement them consistently, validate their schemas, document their authorization requirements, and add missing endpoints where required.
+
+Use appropriate HTTP status codes, structured errors, pagination, request validation, and rate limiting.
+
+Use idempotency keys for operations that create charges, start campaigns, or submit payments.
+
+Never expose secrets in API responses.
+
+---
+
+# PART 20 — TESTING AND QUALITY ASSURANCE
+
+Create automated tests for:
+- Authentication.
+- Tenant isolation.
+- Role-based access.
+- Contact creation and updates.
+- CSV import validation.
+- Campaign scheduling.
+- Timezone handling.
+- Call state transitions.
+- Duplicate webhook delivery.
+- Duplicate payment events.
+- Wallet reservations.
+- Usage calculations.
+- Rate changes.
+- Refunds.
+- Invoice totals.
+- Do-not-call suppression.
+- Spending limits.
+- Retry policies.
+- Provider failures.
+- Concurrent calls.
+- Reconciliation.
+- Data export and deletion.
+
+Use unit tests, integration tests, and end-to-end tests.
+
+Mock external providers in automated tests. Use provider sandbox environments for actual integration validation.
+
+Add tests for monetary rounding and concurrent wallet transactions.
+
+Before launch, verify that:
+- A repeated webhook cannot create duplicate charges.
+- A repeated payment event cannot credit a wallet twice.
+- A tenant cannot read another tenant's contacts.
+- A scheduled call cannot bypass consent checks.
+- A failed AI connection is handled safely.
+- A stuck call can be reconciled.
+- An exhausted wallet blocks new calls.
+- Issued financial records remain auditable.
+
+---
+
+# PART 21 — REQUIRED ENVIRONMENT CONFIGURATION
+
+Create a documented .env.example with placeholders for the integrations actually used.
+
+Include categories for:
+
+Frontend:
+- VITE_FIREBASE_API_KEY
+- VITE_FIREBASE_AUTH_DOMAIN
+- VITE_FIREBASE_PROJECT_ID
+- VITE_FIREBASE_STORAGE_BUCKET
+- VITE_FIREBASE_APP_ID
+
+Backend:
+- GEMINI_API_KEY
+- FIREBASE_PROJECT_ID
+- GOOGLE_CLOUD_PROJECT
+- GOOGLE_CLOUD_REGION
+
+Telephony:
+- TELEPHONY_PROVIDER
+- EXOTEL_ACCOUNT_ID
+- EXOTEL_API_KEY
+- EXOTEL_API_TOKEN
+- EXOTEL_SUBDOMAIN
+- EXOTEL_CALLER_ID
+
+Payment:
+- RAZORPAY_KEY_ID
+- RAZORPAY_KEY_SECRET
+- RAZORPAY_WEBHOOK_SECRET
+
+Optional voice services:
+- SPEECH_TO_TEXT_PROVIDER
+- TEXT_TO_SPEECH_PROVIDER
+- VOICE_ORCHESTRATION_PROVIDER
+
+Notifications:
+- EMAIL_PROVIDER
+- EMAIL_API_KEY
+- EMAIL_FROM_ADDRESS
+
+Scheduling:
+- QUEUE_PROVIDER
+- CLOUD_TASKS_QUEUE
+- CLOUD_TASKS_LOCATION
+
+Only include provider-specific variables that match the selected implementation. Treat this list as a configuration template, not a claim that all credentials are required by every provider.
+
+All secrets must be stored in server-side secret storage in production.
+
+Never put server-side secrets in VITE_ variables or client-side JavaScript.
+
+Document how to configure Firebase, Gemini, telephony, payment, email, and scheduling services separately.
+
+---
+
+# PART 22 — BUILD AND DEPLOYMENT WORKFLOW
+
+Follow this exact implementation order.
+
+Phase 1:
+- Create the project.
+- Implement the design system.
+- Create authentication.
+- Create organizations and membership roles.
+- Create Firestore schemas and security rules.
+
+Phase 2:
+- Build the complete CRM.
+- Implement contact import and export.
+- Implement notes, tasks, and timelines.
+
+Phase 3:
+- Build the AI agent editor.
+- Implement versioned prompts and structured outputs.
+- Integrate Gemini securely.
+- Build the agent test console.
+
+Phase 4:
+- Implement telephony provider adapters.
+- Implement live calling.
+- Configure webhooks.
+- Create the call state machine.
+- Validate provider sandbox calls.
+
+Phase 5:
+- Implement the campaign manager.
+- Implement durable scheduling.
+- Add retry policies.
+- Add consent and suppression checks.
+
+Phase 6:
+- Implement usage metering.
+- Implement wallet transactions.
+- Integrate payments.
+- Implement invoices and reconciliation.
+
+Phase 7:
+- Build admin analytics.
+- Implement optional integrations.
+- Add notifications and monitoring.
+- Finish automated testing.
+
+Phase 8:
+- Perform a security review.
+- Fix test failures.
+- Prepare production deployment.
+- Provide a complete setup and operations guide.
+
+After every phase, maintain working features and verify that the application still builds.
+
+Do not stop after creating the first dashboard. Continue through the backend, database, integrations, and tests.
+
+If the development environment imposes output or tool limits, implement the application incrementally and maintain a checklist of completed and remaining modules.
+
+Do not silently replace real functionality with static data.
+
+---
+
+# PART 23 — FINAL ACCEPTANCE REQUIREMENTS
+
+The application is ready for a production pilot only when all applicable items below have been tested.
+
+1. A user can register and create a business workspace.
+2. Business records are isolated by organization.
+3. Contacts can be imported, edited, searched, and exported.
+4. AI voice agents can be configured and versioned.
+5. The selected telephony integration can initiate a real authorized test call.
+6. The voice pipeline can conduct a supported live conversation.
+7. Call events and outcomes are persisted.
+8. The scheduler can execute a follow-up without a browser being open.
+9. Consent, calling hours, and do-not-call rules are enforced.
+10. Usage is calculated using verified call records and configured pricing.
+11. Duplicate webhooks cannot produce duplicate charges.
+12. A verified payment can credit the wallet exactly once.
+13. Customers can view their usage and download reports.
+14. Spending limits stop new calls when required.
+15. The administrator can configure pricing and inspect financial records.
+16. Errors, failed calls, and reconciliation exceptions are visible.
+17. Automated tests pass.
+18. Production secrets are protected.
+19. Deployment instructions are complete.
+20. External integrations are explicitly marked connected, unconfigured, or in sandbox mode according to their actual state.
+
+## YOUR FIRST ACTION
+
+Start by inspecting the available development environment and producing the application structure, implementation plan, database schema, integration interfaces, and frontend foundation.
+
+Then begin implementing the actual code.
+
+Do not respond with only a plan or an explanation. Create the working project files wherever the environment permits.
+
+If an external connector needs credentials or authorization, implement the connector and its configuration screen, identify the exact missing setup, and continue building everything that does not depend on those credentials.
+
+The final objective is a secure, deployable, usage-based AI Calling Agent CRM SaaS with real integrations, durable scheduling, accurate billing, and complete CRM functionality.
